@@ -70,7 +70,7 @@ $(document).ready(function(){
                 canvas.drawImage(explosion_img,this.x,this.y);    
                 theme_snd.pause();
                 game_over.play();
-                $('#start-over').before('<p>You Died!!!</p>');
+                $('.died').show();
                 $('.startover').toggle();
                 clearInterval(loop);
             }
