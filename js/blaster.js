@@ -1,7 +1,5 @@
 
  //based on http://www.html5rocks.com/en/tutorials/canvas/notearsgame/
-   
-
 
 $(document).ready(function(){
     var width = 500;
