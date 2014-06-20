@@ -12,6 +12,7 @@ $(document).ready(function(){
         player.x = width/2;
         player.y= height-57;
         enemies = [];
+        playerBullets = [];
         player.active=true;
         loop = startGame();
         $('.startover').toggle();
