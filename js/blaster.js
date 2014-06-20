@@ -4,10 +4,35 @@
 $(document).ready(function(){
     var width = 500;
     var height = 700;
-    
     var loop;
+    var score;
+    var canvas = $('canvas').get(0).getContext('2d');
+    var FPS = 30;
+    
+    //images and sounds
+    player_img = new Image();
+    player_img.src= './images/pony.png';
+    
+    enemy_img = new Image();
+    enemy_img.src= './images/druplicon.png';
+    explosion_img = new Image();
+    explosion_img.src = './images/explosion.jpg';
+
+    shoot_snd = new Audio('./sounds/shoot.mp3');
+    explode_snd = new Audio('./sounds/explode.mp3');
+    theme_snd = new Audio('./sounds/theme.mp3');
+    game_over = new Audio('./sounds/gameover.mp3');
+    
+    //loop theme song
+    $(theme_snd).on('ended', function(e){
+        this.current_time = 0;
+        this.play();
+    });
+
+    //set canvas size: this may be dynamic at some point?
     $('canvas').attr('width', width+'px');
     $('canvas').attr('height', height+'px');
+    
     $('#start-over').on('click', function(e){
         player.x = width/2;
         player.y= height-57;
@@ -18,10 +43,6 @@ $(document).ready(function(){
         $('.startover').toggle();
         });
 
-    var canvas = $('canvas').get(0).getContext('2d');
-    //game loop
-    var FPS = 30;
-    
     function startGame(){
         var interval = setInterval(function() {
             update();
@@ -30,26 +51,8 @@ $(document).ready(function(){
         theme_snd.play();
         return interval;
     }
-    player_img = new Image();
-    player_img.src= './images/pony.png';
     
-    enemy_img = new Image();
-    enemy_img.src= './images/druplicon.png';
- 
-    explosion_img = new Image();
-    explosion_img.src = './images/explosion.jpg';
-
-    shoot_snd = new Audio('./sounds/shoot.mp3');
-    explode_snd = new Audio('./sounds/explode.mp3');
-    theme_snd = new Audio('./sounds/theme.mp3');
-    game_over = new Audio('./sounds/gameover.mp3');
-
-    //loop theme
-    $(theme_snd).on('ended', function(e){
-        this.current_time = 0;
-        this.play();
-    });
-    
+        
     //objects
     var player = {
         color:'blue',
@@ -155,8 +158,7 @@ $(document).ready(function(){
         handleCollisions();
     }
  
-    
-
+   var playerBullets = [];
    function Bullet(I) {
       I.active = true;
 
@@ -187,7 +189,6 @@ $(document).ready(function(){
     } 
 
     var enemies = [];
-
     function Enemy(I) {
       I = I || {};
 
@@ -258,10 +259,11 @@ $(document).ready(function(){
       });
     }
 
+    //keypress utils
     window.keysDown = {};      // Tracking object
-        var playerBullets = [];
 
         $("body").on('keydown', function(e) {
+            //don't let spacebar press trigger button
             if (e.which == 32)e.preventDefault();
             keysDown[e.which] = true;
         });
