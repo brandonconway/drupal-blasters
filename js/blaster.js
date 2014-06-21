@@ -196,6 +196,8 @@ $(document).ready(function(){
 
       return I;
     } 
+ 
+    var velocity = 2.0;
 
     var enemies = [];
     function Enemy(I) {
@@ -208,9 +210,8 @@ $(document).ready(function(){
 
       I.x = width / 4 + Math.random() * width / 2;
       I.y = 0;
-      I.xVelocity = 0
-      I.yVelocity = 2;
-      I.zig_zag = 3.0;
+      I.xVelocity = 0;
+      I.yVelocity = velocity;
 
       I.width = 52;
       I.height = 59;
@@ -230,9 +231,9 @@ $(document).ready(function(){
       I.update = function() {
         I.x += I.xVelocity;
         I.y += I.yVelocity;
-        I.xVelocity = I.zig_zag * Math.sin(I.age * Math.PI / 64);
+        I.xVelocity = 3 * Math.sin(I.age * Math.PI / 64);
         I.age++;
-        I.zig_zag += 1/(10 * FPS);
+        velocity += 1/(100*FPS);
         I.active = I.active && I.inBounds();
       };
       
