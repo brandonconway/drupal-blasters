@@ -113,14 +113,13 @@ $(document).ready(function(){
         
         canvas.font = '18px sans-serif';
         canvas.fillStyle='white';
-        canvas.fillText('Score: '+score, width-100, 15);
+        canvas.fillText('Score: '+score, 0, 15);
 
         });
     }
     
     
     function update(i){
-    
         //a or h= left
         if(keysDown[65]|| keysDown[72])
             player.x -=5; 
@@ -197,6 +196,8 @@ $(document).ready(function(){
 
       return I;
     } 
+ 
+    var velocity = 2.0;
 
     var enemies = [];
     function Enemy(I) {
@@ -209,8 +210,8 @@ $(document).ready(function(){
 
       I.x = width / 4 + Math.random() * width / 2;
       I.y = 0;
-      I.xVelocity = 0
-      I.yVelocity = 2;
+      I.xVelocity = 0;
+      I.yVelocity = velocity;
 
       I.width = 52;
       I.height = 59;
@@ -232,6 +233,7 @@ $(document).ready(function(){
         I.y += I.yVelocity;
         I.xVelocity = 3 * Math.sin(I.age * Math.PI / 64);
         I.age++;
+        velocity += 1/(100*FPS);
         I.active = I.active && I.inBounds();
       };
       
