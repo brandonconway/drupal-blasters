@@ -4,38 +4,17 @@
 $(document).ready(function(){
     var width = 500;
     var height = 700;
-    
     var loop;
-    $('canvas').attr('width', width+'px');
-    $('canvas').attr('height', height+'px');
-    $('#start-over').on('click', function(e){
-        player.x = width/2;
-        player.y= height-57;
-        enemies = [];
-        playerBullets = [];
-        player.active=true;
-        loop = startGame();
-        $('.startover').toggle();
-        });
-
+    var score = 0;
     var canvas = $('canvas').get(0).getContext('2d');
-    //game loop
     var FPS = 30;
     
-    function startGame(){
-        var interval = setInterval(function() {
-            update();
-            draw();
-            }, 1000/FPS);
-        theme_snd.play();
-        return interval;
-    }
+    //images and sounds
     player_img = new Image();
     player_img.src= './images/pony.png';
     
     enemy_img = new Image();
     enemy_img.src= './images/druplicon.png';
- 
     explosion_img = new Image();
     explosion_img.src = './images/explosion.jpg';
 
@@ -43,13 +22,42 @@ $(document).ready(function(){
     explode_snd = new Audio('./sounds/explode.mp3');
     theme_snd = new Audio('./sounds/theme.mp3');
     game_over = new Audio('./sounds/gameover.mp3');
-
-    //loop theme
+    
+    //loop theme song
     $(theme_snd).on('ended', function(e){
         this.current_time = 0;
         this.play();
     });
+
+    //set canvas size: this may be dynamic at some point?
+    $('canvas').attr('width', width+'px');
+    $('canvas').attr('height', height+'px');
     
+    
+
+    $('#start-over').on('click', function(e){
+        player.x = width/2;
+        player.y= height-57;
+        enemies = [];
+        playerBullets = [];
+        score = 0;
+        player.active=true;
+        loop = startGame();
+        $('.startover').toggle();
+        });
+
+    function startGame(){
+        var i =0;
+        var interval = setInterval(function() {
+            update(i);
+            draw();
+            i++;
+            }, 1000/FPS);
+        theme_snd.play();
+        return interval;
+    }
+    
+        
     //objects
     var player = {
         color:'blue',
@@ -60,8 +68,6 @@ $(document).ready(function(){
         img: player_img,
         active:true,
         draw: function(){
-            //canvas.fillStyle = this.color;
-            //canvas.fillRect(this.x, this.y, this.width, this.height);
             if(this.active)
             canvas.drawImage(this.img,this.x,this.y);    
             else{
@@ -70,6 +76,7 @@ $(document).ready(function(){
                 theme_snd.pause();
                 game_over.play();
                 $('.died').show();
+                $('#score').text('Score: '+score);
                 $('.startover').toggle();
                 clearInterval(loop);
             }
@@ -103,14 +110,17 @@ $(document).ready(function(){
               });
         enemies.forEach(function(enemy) {
             enemy.draw();
+        
+        canvas.font = '18px sans-serif';
+        canvas.fillStyle='white';
+        canvas.fillText('Score: '+score, width-100, 15);
+
         });
     }
     
-    function clamp(input, min, max) {
-      return Math.max(min, Math.min(input,max));
-    };
-
-    function update(){
+    
+    function update(i){
+    
         //a or h= left
         if(keysDown[65]|| keysDown[72])
             player.x -=5; 
@@ -123,9 +133,13 @@ $(document).ready(function(){
         //s or j = down
         if(keysDown[83]|| keysDown[74])
            player.y +=5; 
-        if(keysDown[32])//Space Bar
-           player.shoot();
-        
+        //Space Bar{
+        if(keysDown[32]){
+        //slow shooting down just a bit
+            if(i%2==0){
+                player.shoot();
+            } 
+        }
         //keep player in bounds
         player.x = clamp(player.x, 0, (width-player.width));
         player.y = clamp(player.y, (height-height/2), height-player.height);
@@ -134,11 +148,10 @@ $(document).ready(function(){
         playerBullets.forEach(function(bullet) {
             bullet.update();
           });
-
         playerBullets = playerBullets.filter(function(bullet) {
             return bullet.active;
               });
-
+        
         //enemies 
         enemies.forEach(function(enemy) {
             enemy.update();
@@ -155,8 +168,7 @@ $(document).ready(function(){
         handleCollisions();
     }
  
-    
-
+   var playerBullets = [];
    function Bullet(I) {
       I.active = true;
 
@@ -165,7 +177,7 @@ $(document).ready(function(){
       I.width = 3;
       I.height = 3;
       I.color = "yellow";
-
+    
       I.inBounds = function() {
         return I.x >= 0 && I.x <= height &&
           I.y >= 0 && I.y <= height;
@@ -187,13 +199,12 @@ $(document).ready(function(){
     } 
 
     var enemies = [];
-
     function Enemy(I) {
       I = I || {};
 
       I.active = true;
       I.age = Math.floor(Math.random() * 128);
-
+      I.points = 100;
       I.color = "#A2B";
 
       I.x = width / 4 + Math.random() * width / 2;
@@ -244,6 +255,7 @@ $(document).ready(function(){
       playerBullets.forEach(function(bullet) {
         enemies.forEach(function(enemy) {
           if (collides(bullet, enemy)) {
+            score += enemy.points;
             enemy.explode();
             bullet.active = false;
           }
@@ -258,10 +270,11 @@ $(document).ready(function(){
       });
     }
 
+    //keypress utils
     window.keysDown = {};      // Tracking object
-        var playerBullets = [];
 
         $("body").on('keydown', function(e) {
+            //don't let spacebar press trigger button
             if (e.which == 32)e.preventDefault();
             keysDown[e.which] = true;
         });
@@ -270,5 +283,9 @@ $(document).ready(function(){
             if (e.which == 32)e.preventDefault();
             keysDown[e.which] = false;
         });
+    
+    function clamp(input, min, max) {
+      return Math.max(min, Math.min(input,max));
+    };
 
 });
